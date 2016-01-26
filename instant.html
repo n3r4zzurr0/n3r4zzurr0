@@ -1,0 +1,32 @@
+<script>
+var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+if(width<700) window.location="userxp.html";
+</script>
+
+<style>
+body{margin:0;padding:0;font-family:arial}
+#footer_container{height:42px;right:0;left:0;top:0;position:fixed;width:100%;}
+#footer{margin:0;width:50%;text-align:left;font-size:12px;background-color:#fff;}
+#res{background:url(http://www.mp3jack.in/lyrics/gangnam.gif) center center no-repeat;}
+#field{height:30px;width:300px;text-indent:6px;font-size:16px;font-weight:bold;border:2px solid #333333;color:#444444;}
+</style>
+
+<title>Instant Lyrics</title>
+
+<div id="footer_container">
+<div id="footer">
+<div style="margin-top:12px;margin-left:12px;">
+<table>
+<td><img src="http://www.mp3jack.in/lyrics/il.png"></td>
+<td><input type="text" name="query" id="field" spellcheck="false" autofocus></td>
+</table>
+</div></div></div>
+
+<div id="results"><center><br><br><br><a href="http://www.twitter.com/uv1997born" target="_blank"><img src="https://cdn1.iconfinder.com/data/icons/pin-social-media-piconic/512/twitter-512.png" height="420px"></a><br><a href="http://mp3jack.in"><img src="http://www.mp3jack.in/logogray.png"></a></center></div>
+
+<script>
+var inputBox = document.getElementById('field');
+inputBox.onkeyup = function() {
+document.getElementById('results').innerHTML = '<div id="res"><iframe src="instant.php?q='+inputBox.value+'" frameborder=0 width=100% height=100%></iframe></div>';
+}
+</script>
