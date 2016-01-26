@@ -9,15 +9,7 @@ body{margin:0;padding:0;font-family:arial}
 #footer{margin:0;width:50%;text-align:left;font-size:12px;background-color:#fff;}
 #res{background:url(http://www.mp3jack.in/lyrics/gangnam.gif) center center no-repeat;}
 #field{height:30px;width:300px;text-indent:6px;font-size:16px;font-weight:bold;border:2px solid #333333;color:#444444;}
-.css3gradient{width:100%;height:24px;
- background-color:#f57200;bottom:0;position:fixed;
- filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#f57200, endColorstr=#ffffff);
- background-image:-moz-linear-gradient(top, #f57200 0%, #ffffff 50%,#00c217 100%);
-background-image:linear-gradient(top, #f57200 0%, #ffffff 50%,#00c217 100%);
-background-image:-webkit-linear-gradient(top, #f57200 0%, #ffffff 50%,#00c217 100%);
-background-image:-o-linear-gradient(top, #f57200 0%, #ffffff 50%,#00c217 100%);
-background-image:-ms-linear-gradient(top, #f57200 0%, #ffffff 50%,#00c217 100%);
- background-image:-webkit-gradient(linear, right top, right bottom, color-stop(0%,#f57200), color-stop(50%,#ffffff),color-stop(100%,#00c217));}
+.info{position:absolute;top:50%;left:50%;padding:15px;-ms-transform: translateX(-50%) translateY(-50%);-webkit-transform: translate(-50%,-50%);transform: translate(-50%,-50%);}
 </style>
 
 <title>Instant Lyrics</title>
@@ -27,11 +19,11 @@ background-image:-ms-linear-gradient(top, #f57200 0%, #ffffff 50%,#00c217 100%);
 <div style="margin-top:12px;margin-left:12px;">
 <table>
 <td><img src="http://www.mp3jack.in/lyrics/il.png"></td>
-<td><input type="text" name="query" id="field" spellcheck="false" autofocus></td>
+<td><input type="text" name="query" id="field" spellcheck="false"></td>
 </table>
 </div></div></div>
 
-<div id="results"><center><br><br><br><a href="http://www.twitter.com/uv1997born" target="_blank"><img src="https://cdn1.iconfinder.com/data/icons/pin-social-media-piconic/512/twitter-512.png" height="420px"></a><br><a href="http://mp3jack.in"><img src="http://www.mp3jack.in/logogray.png"></a></center><div class="css3gradient"><center><span style="font-family:arial;font-weight:bold">Verma Jr.</span></center></div></div>
+<div id="results"><div class="info"><table><td style="vertical-align:top;"><img src="https://cdn3.iconfinder.com/data/icons/49handdrawing/256x256/earth.png"></td><td><h2>Lyrics from around the globe!</h2><b>Do you know?</b><br>If you don't know the name of the song,<br>and know some of it's phrases, just search<br>those phrases and you'll be directed to<br>that song automatically.<br>For example, if you know some phrase<br>like, "easy is his name". Just type this<br>phrase and lyrics for "Straight Outta Compton"<br>will be shown automatically!<table><td><a href="http://www.twitter.com/uv1997born" target="_blank"><img src="https://cdn3.iconfinder.com/data/icons/wddtwitter/PNG/twitter_44.png"></a></td><td><a href="http://mp3jack.in" target="_blank"><img src="http://www.mp3jack.in/logogray.png"></a></td></table></td></table></div></div>
 
 <script>
 var inputBox = document.getElementById('field');
