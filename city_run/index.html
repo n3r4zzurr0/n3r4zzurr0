@@ -4,7 +4,8 @@
 <style type="text/css">
 body{
 	font-family: 'Luckiest Guy', cursive;
-	margin:0;
+	margin: 0;
+	padding: 0;
 	background-image: url("img/bg.png");
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
@@ -59,7 +60,7 @@ body{
 <body>
 	<div id="startScreen"><center>
 		<div style="margin-top:60px;"></div>
-		<div class="gameTitle">CITY RUN</div>
+		<div class="gameTitle">City Run</div>
 		<br>
 		<div id="gameInstructions">
 			Jump over the green boxed guy<br>
@@ -77,17 +78,54 @@ body{
 </body>
 
 <script type="text/javascript">
-const config = {
-	y : 150,
-	health : 3,
-	headHeight : 36,
-	headMarginX : -2,
-	headMarginY : 5,
-	bodyWidth : 58,
-	bodyHeight : 56,
-	playerLeftIndent : 24,
-	bulletStartPosition : 84,
-	gapWidth : 120
+const hexToRgb = hex => hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i ,(m, r, g, b) => '#' + r + r + g + g + b + b).substring(1).match(/.{2}/g).map(x => parseInt(x, 16));
+
+const local = {
+	config : {
+		y : 150,
+		health : 3,
+		headHeight : 36,
+		headMarginX : -4,
+		headMarginY : 5,
+		bodyWidth : 58,
+		bodyHeight : 56,
+		bodyWidthWhileFiring : 69,
+		playerLeftIndent : 24,
+		bulletStartPosition : 84,
+		gapWidth : 120,
+		gunWidth : 20,
+		gunHeight : 20,
+		entityWidth : 56,
+		entityHeight : 62,
+		bulletWidth : 10,
+		bulletHeight : 4,
+		powWidth : 60,
+		powHeight : 60,
+		powMarginX : -24,
+		powMarginY : -84,
+	},
+	color : {
+		bullet : "#ff0000",
+		enemyLaser : "#ff0000"
+	},
+	img : {
+		gun : "img/gun.png",
+		pow : "img/pow.png",
+		head : "img/head.png",
+		enemy : "img/enemy.png",
+		friend : "img/friend.png",
+		sprite : "img/sprite.png",
+		spriteFire : "img/spriteFire.png",
+		background : "img/bg.png",
+		health : "img/health.png"
+	},
+	audio : {
+		die : "audio/die.wav",
+		fall : "audio/fall.wav",
+		fire : "audio/fire.wav",
+		music : "audio/music.mp3",
+		collision : "audio/collision.wav"
+	}
 };
 
 const canvas = document.getElementById("game");
@@ -103,46 +141,46 @@ var score = 0;
 var bg_frame = 0;
 
 let bg = new Image();
-bg.src = "img/bg.png";
+bg.src = local.img.background;
 
 let head_ = new Image();
-head_.src = "img/rock.png";
+head_.src = local.img.head;
 
 let stickman = new Image();
-stickman.src = "img/sprite.png";
+stickman.src = local.img.sprite;
 
 let stickmanFire = new Image();
-stickmanFire.src = "img/spriteFire.png";
+stickmanFire.src = local.img.spriteFire;
 
 let gun_ = new Image();
-gun_.src = "img/gun.png";
+gun_.src = local.img.gun;
 
 let enemy_ = new Image();
-enemy_.src = "img/enemy.png";
+enemy_.src = local.img.enemy;
 
 let friend_ = new Image();
-friend_.src = "img/friend.png";
+friend_.src = local.img.friend;
 
 let pow = new Image();
-pow.src = "img/pow.png";
+pow.src = local.img.pow;
 
 let health = new Image();
-health.src = "img/health.png";
+health.src = local.img.health;
 
 let fallSound = new Audio();
-fallSound.src = "audio/fall.wav";
+fallSound.src = local.audio.fall;
 
 let fireSound = new Audio();
-fireSound.src = "audio/fire.wav";
+fireSound.src = local.audio.fire;
 
 let collisionSound = new Audio();
-collisionSound.src = "audio/collision.wav";
+collisionSound.src = local.audio.collision;
 
 let dieSound = new Audio();
-dieSound.src = "audio/die.wav";
+dieSound.src = local.audio.die;
 
 let music = new Audio();
-music.src = "audio/music.mp3";
+music.src = local.audio.music;
 
 let bullets = [];
 let enemies = [];
@@ -161,16 +199,17 @@ function tracker(ctx, x, y){
 
 const head = {
 	animate : [0, 2, 1, 1],
-	w : (head_.width / head_.height) * config.headHeight,
-	h : config.headHeight,
+	w : (head_.width / head_.height) * local.config.headHeight,
+	h : local.config.headHeight,
 	fall_y : 0,
 	draw : function(){
 		if(player.blink == 1){
 			if(frame % 2 == 0){
-				ctx.drawImage(head_, 0, 0, head_.width, head_.height, player.x + config.bodyWidth / 2 + config.headMarginX, canvas.height - config.y - player.h - this.h - player.jump_y + config.headMarginY + this.animate[player.f], this.w, this.h);
+				ctx.drawImage(head_, 0, 0, head_.width, head_.height, player.x + local.config.bodyWidth / 2 + local.config.headMarginX, canvas.height - local.config.y - player.h - this.h - player.jump_y + local.config.headMarginY + this.animate[player.f], this.w, this.h);
 			}
-		}else
-			ctx.drawImage(head_, 0, 0, head_.width, head_.height, player.x + config.bodyWidth / 2 + config.headMarginX, canvas.height - config.y - player.h - this.h - player.jump_y + config.headMarginY + this.animate[player.f], this.w, this.h);
+		}else{
+			ctx.drawImage(head_, 0, 0, head_.width, head_.height, player.x + local.config.bodyWidth / 2 + local.config.headMarginX, canvas.height - local.config.y - player.h - this.h - player.jump_y + local.config.headMarginY + this.animate[player.f], this.w, this.h);
+		}
 	},
 	fall : function(){
 		if(player.collision == 1){
@@ -186,7 +225,7 @@ const head = {
 		}else
 			this.fall_y += 15;
 
-		ctx.drawImage(head_, 0, 0, head_.width, head_.height, player.x + config.bodyWidth / 2 - config.headMarginX + this.fall_x, canvas.height - config.y - player.h - this.h - player.jump_y + config.headMarginY + this.animate[player.f] + this.fall_y, this.w, this.h);
+		ctx.drawImage(head_, 0, 0, head_.width, head_.height, player.x + local.config.bodyWidth / 2 - local.config.headMarginX + this.fall_x, canvas.height - local.config.y - player.h - this.h - player.jump_y + local.config.headMarginY + this.animate[player.f] + this.fall_y, this.w, this.h);
 	}
 }
 
@@ -204,10 +243,10 @@ const player = {
 		{x : 207, y : 0, w : 69, h : 56}
 	],
 	fallSafeDistance : [26, 27, 11, 32],
-	x : config.playerLeftIndent,
-	y : config.y,
-	w : config.bodyWidth,
-	h : config.bodyHeight,
+	x : local.config.playerLeftIndent,
+	y : local.config.y,
+	w : local.config.bodyWidth,
+	h : local.config.bodyHeight,
 	f : 0,
 	d : 10,
 	jump_f : 0,
@@ -222,11 +261,11 @@ const player = {
 		if(shotFired == 1){
 			sprite = stickmanFire;
 			player = this.animateF[this.f];
-			this.w = 69; // Width Of Player While Firing
+			this.w = local.config.bodyWidthWhileFiring;
 		}else{
 			sprite = stickman;
 			player = this.animate[this.f];
-			this.w = config.bodyWidth;
+			this.w = local.config.bodyWidth;
 		}
 		if(this.blink == 1){
 			if(frame % 2 == 0)
@@ -287,11 +326,11 @@ const player = {
 		if(shotFired == 1){
 			sprite = stickmanFire;
 			player = this.animateF[this.f];
-			this.w = 69;
+			this.w = local.config.bodyWidthWhileFiring;
 		}else{
 			sprite = stickman;
 			player = this.animate[this.f];
-			this.w = config.bodyWidth;
+			this.w = local.config.bodyWidth;
 		}
 		ctx.drawImage(sprite, player.x, player.y, player.w, player.h , this.x, canvas.height - this.y - this.h - this.jump_y, this.w, this.h);
 		this.fall_f ++;
@@ -302,16 +341,16 @@ const player = {
 
 const gun = {
 	animate : [
-		{x : 83, y : config.y + player.h - 5, a : -33},
-		{x : 70, y : config.y + player.h - 23, a : 18},
-		{x : 39, y : config.y + player.h - 15, a : 160},
-		{x : 56, y : config.y + player.h - 26, a : 65}
+		{x : 83, y : local.config.y + player.h - 5, a : -33},
+		{x : 70, y : local.config.y + player.h - 23, a : 18},
+		{x : 39, y : local.config.y + player.h - 15, a : 160},
+		{x : 56, y : local.config.y + player.h - 26, a : 65}
 	],
 	animateF : [
-		{x : 90, y : config.y + player.h - 6, a : 0},
-		{x : 89, y : config.y + player.h - 7, a : 0},
-		{x : 90, y : config.y + player.h - 7, a : 0},
-		{x : 88, y : config.y + player.h - 7, a : 0}
+		{x : 90, y : local.config.y + player.h - 6, a : 0},
+		{x : 89, y : local.config.y + player.h - 7, a : 0},
+		{x : 90, y : local.config.y + player.h - 7, a : 0},
+		{x : 88, y : local.config.y + player.h - 7, a : 0}
 	],
 	f : 0,
 	d : 10,
@@ -335,12 +374,12 @@ const gun = {
 			if(frame % 2 == 0){
 				ctx.translate(gun.x, canvas.height - gun.y - player.jump_y);
 				ctx.rotate(gun.a * Math.PI / 180);
-				ctx.drawImage(gun_, -10, -10, 20, 20);
+				ctx.drawImage(gun_, -local.config.gunWidth / 2, -local.config.gunHeight / 2, local.config.gunWidth, local.config.gunHeight);
 			}
 		}else{
 			ctx.translate(gun.x, canvas.height - gun.y - player.jump_y);
 			ctx.rotate(gun.a * Math.PI / 180);
-			ctx.drawImage(gun_, -10, -10, 20, 20);
+			ctx.drawImage(gun_, -local.config.gunWidth / 2, -local.config.gunHeight / 2, local.config.gunWidth, local.config.gunHeight);
 		}
 		ctx.restore();
 		if(frame % this.d == 0)
@@ -354,8 +393,8 @@ const gun = {
 		fireSound.currentTime = 0;
 		fireSound.play();
 		shotFired = 1;
-		let x = config.bulletStartPosition;
-		let y = canvas.height - config.y - player.h - player.jump_y;
+		let x = local.config.bulletStartPosition;
+		let y = canvas.height - local.config.y - player.h - player.jump_y;
 		bullets.push({
 			entity : new bullet(),
 			pos : {
@@ -386,7 +425,7 @@ const gun = {
 		ctx.save();
 		ctx.translate(gun.x, canvas.height - gun.y - player.jump_y + this.fall_y);
 		ctx.rotate(gun.a * Math.PI / 180);
-		ctx.drawImage(gun_, -10, -10, 20, 20);
+		ctx.drawImage(gun_, -local.config.gunWidth / 2, -local.config.gunHeight / 2, local.config.gunWidth, local.config.gunHeight);
 		ctx.restore();
 	}
 }
@@ -396,16 +435,17 @@ class enemy{
 		this.draw(x, y);
 	}
 	draw(x, y){
-		let w = 56;
-		let h = 62;
-		ctx.fillStyle = "rgba(255, 0, 0, 0.4)";
-		ctx.fillRect(x, 0, w, canvas.height - config.y);
+		let w = local.config.entityWidth;
+		let h = local.config.entityHeight;
+		let color = hexToRgb(local.color.enemyLaser);
+		ctx.fillStyle = "rgba("+color[0]+", "+color[1]+", "+color[2]+", 0.4)";
+		ctx.fillRect(x, 0, w, canvas.height - local.config.y);
 		ctx.drawImage(enemy_, 0, 0, enemy_.width, enemy_.height, x, canvas.height - h - y, w, h);
 
 	}
 	move(i){
-		let w = 56;
-		let h = 62;
+		let w = local.config.entityWidth;
+		let h = local.config.entityHeight;
 		if(enemies[i].status == 1){
 			enemies[i].pos.x -= 5;
 			this.draw(enemies[i].pos.x, enemies[i].pos.y);
@@ -417,9 +457,8 @@ class enemy{
 			ctx.rotate(enemies[i].angle * Math.PI / 180);
 			ctx.drawImage(enemy_, -w / 2, -h / 2, w, h);
 			ctx.restore();
-			//this.draw(enemies[i].pos.x, enemies[i].pos.y);
 			if(enemies[i].killFrame < 4)
-				ctx.drawImage(pow, 0, 0, pow.width, pow.height, enemies[i].powx - 24, canvas.height - enemies[i].powy - 84, 60, 60);
+				ctx.drawImage(pow, 0, 0, pow.width, pow.height, enemies[i].powx + local.config.powMarginX, canvas.height - enemies[i].powy + local.config.powMarginY, local.config.powWidth, local.config.powHeight);
 			enemies[i].killFrame ++;
 		}
 
@@ -434,8 +473,8 @@ class friend{
 		this.draw(x, y);
 	}
 	draw(x, y){
-		let w = 56;
-		let h = 62;
+		let w = local.config.entityWidth;
+		let h = local.config.entityHeight;
 		ctx.drawImage(friend_, 0, 0, friend_.width, friend_.height, x, canvas.height - h - y, w, h);
 	}
 	move(i){
@@ -443,8 +482,8 @@ class friend{
 			friends[i].pos.x -= 5;
 			this.draw(friends[i].pos.x, friends[i].pos.y);
 		}else{
-			let w = 56;
-			let h = 62;
+			let w = local.config.entityWidth;
+			let h = local.config.entityHeight;
 			friends[i].pos.y -= 10;
 			friends[i].angle += 20;
 			ctx.save();
@@ -454,10 +493,10 @@ class friend{
 			ctx.restore();
 			//this.draw(enemies[i].pos.x, enemies[i].pos.y);
 			if(friends[i].killFrame < 4)
-				ctx.drawImage(pow, 0, 0, pow.width, pow.height, friends[i].powx - 24, canvas.height - friends[i].powy - 84, 60, 60);
+				ctx.drawImage(pow, 0, 0, pow.width, pow.height, friends[i].powx + local.config.powMarginX, canvas.height - friends[i].powy + local.config.powMarginY, local.config.powWidth, local.config.powHeight);
 			friends[i].killFrame ++;
 
-			if(friends[i].killFrame > config.y / 10)
+			if(friends[i].killFrame > local.config.y / 10)
 				gameOver = 1;
 		}
 	}
@@ -471,8 +510,8 @@ class bullet{
 		this.draw(x, y);
 	}
 	draw(x, y){
-		ctx.fillStyle = "red";
-		ctx.fillRect(x, y, 10, 4);
+		ctx.fillStyle = local.color.bullet;
+		ctx.fillRect(x, y, local.config.bulletWidth, local.config.bulletHeight);
 	}
 	travel(i){
 		bullets[i].pos.x += 20;
@@ -488,13 +527,13 @@ class gap{
 		this.draw(x);
 	}
 	draw(x){
-		if(x + config.gapWidth <= canvas.width - bg_frame){
-			ctx.drawImage(bg, (x + bg_frame) * bg.width / canvas.width, bg.height - config.y * bg.height / canvas.height, config.gapWidth * bg.width / canvas.width, config.y * bg.height / canvas.height, x, canvas.height - config.y, config.gapWidth, config.y);
-		}else if(x < canvas.width - bg_frame && x + config.gapWidth > canvas.width - bg_frame){
-			ctx.drawImage(bg, (x + bg_frame) * bg.width / canvas.width, bg.height - config.y * bg.height / canvas.height, (canvas.width - bg_frame - x) * bg.width / canvas.width, config.y * bg.height / canvas.height, x, canvas.height - config.y, canvas.width - bg_frame - x, config.y);
-			ctx.drawImage(bg, 0, bg.height - config.y * bg.height / canvas.height, (config.gapWidth - canvas.width + bg_frame + x) * bg.width / canvas.width, config.y * bg.height / canvas.height, canvas.width - bg_frame, canvas.height - config.y, config.gapWidth - canvas.width + bg_frame + x, config.y);
+		if(x + local.config.gapWidth <= canvas.width - bg_frame){
+			ctx.drawImage(bg, (x + bg_frame) * bg.width / canvas.width, bg.height - local.config.y * bg.height / canvas.height, local.config.gapWidth * bg.width / canvas.width, local.config.y * bg.height / canvas.height, x, canvas.height - local.config.y, local.config.gapWidth, local.config.y);
+		}else if(x < canvas.width - bg_frame && x + local.config.gapWidth > canvas.width - bg_frame){
+			ctx.drawImage(bg, (x + bg_frame) * bg.width / canvas.width, bg.height - local.config.y * bg.height / canvas.height, (canvas.width - bg_frame - x) * bg.width / canvas.width, local.config.y * bg.height / canvas.height, x, canvas.height - local.config.y, canvas.width - bg_frame - x, local.config.y);
+			ctx.drawImage(bg, 0, bg.height - local.config.y * bg.height / canvas.height, (local.config.gapWidth - canvas.width + bg_frame + x) * bg.width / canvas.width, local.config.y * bg.height / canvas.height, canvas.width - bg_frame, canvas.height - local.config.y, local.config.gapWidth - canvas.width + bg_frame + x, local.config.y);
 		}else{
-			ctx.drawImage(bg, (x - (canvas.width - bg_frame)) * bg.width / canvas.width, bg.height - config.y * bg.height / canvas.height, config.gapWidth * bg.width / canvas.width, config.y * bg.height / canvas.height, x, canvas.height - config.y, config.gapWidth, config.y);
+			ctx.drawImage(bg, (x - (canvas.width - bg_frame)) * bg.width / canvas.width, bg.height - local.config.y * bg.height / canvas.height, local.config.gapWidth * bg.width / canvas.width, local.config.y * bg.height / canvas.height, x, canvas.height - local.config.y, local.config.gapWidth, local.config.y);
 		}
 	}
 	move(i){
@@ -532,7 +571,7 @@ function getForemost(comparator){
 			}
 		}
 	};
-	comparator = comparator == 'b' ? (config.bulletStartPosition - 56) : -62;
+	comparator = comparator == 'b' ? (local.config.bulletStartPosition - 56) : -62;
 	for(var i=0; i<enemies.length; i++)
 		if(enemies[i].status == 1)
 			if(enemies[i].pos.x >= comparator){
@@ -561,14 +600,14 @@ function getForemost(comparator){
 function checkIfPlayerCollides(){
 	let foremost = getForemost('c');
 	if(foremost.type == 'f'){
-		if(foremost.object.pos.x + 56 / 2 > player.x + player.w / 2){
+		if(foremost.object.pos.x + local.config.entityWidth / 2 > player.x + player.w / 2){
 			if(foremost.object.pos.x < player.x + player.w - 12)
-				if(player.jump_y < 62)
+				if(player.jump_y < local.config.entityHeight)
 					if(player.blink_f == 0)
 						reduceHealth();
 		}else{
-			if(foremost.object.pos.x + 56 > player.x + 9)
-				if(player.jump_y < 62 - 9)
+			if(foremost.object.pos.x + local.config.entityWidth > player.x + 9)
+				if(player.jump_y < local.config.entityHeight - 9)
 					if(player.blink_f == 0)
 						reduceHealth();
 		}
@@ -582,7 +621,7 @@ function checkIfPlayerCollides(){
 
 function checkIfPlayerFalls(){
 	if(gaps.length != 0)
-		if(player.x + config.bodyWidth - player.fallSafeDistance[player.f] > gaps[0].pos.x && player.x + config.bodyWidth - 9 < gaps[0].pos.x + config.gapWidth)
+		if(player.x + local.config.bodyWidth - player.fallSafeDistance[player.f] > gaps[0].pos.x && player.x + local.config.bodyWidth - 9 < gaps[0].pos.x + local.config.gapWidth)
 			if(player.jump_y == 0){
 				fallSound.play();
 				player.fall_ = 1;
@@ -594,7 +633,7 @@ function checkIfBulletKills(){
 	let firstBullet;
 	let firstBulletIndex;
 	for(let i=0; i<bullets.length; i++)
-		if(bullets[i].pos.y == canvas.height - player.h - config.y/* && bullets[i].pos.y <= 62*/){
+		if(bullets[i].pos.y == canvas.height - player.h - local.config.y/* && bullets[i].pos.y <= 62*/){
 			firstBullet = bullets[i];
 			firstBulletIndex = i;
 			break;
@@ -607,7 +646,7 @@ function checkIfBulletKills(){
 		}
 
 	if(bullets.length != 0){
-		if(firstBullet.pos.y == canvas.height - player.h - config.y/* && firstBullet.pos.y >= canvas.height - config.y - 62*/){
+		if(firstBullet.pos.y == canvas.height - player.h - local.config.y/* && firstBullet.pos.y >= canvas.height - local.config.y - 62*/){
 			if(foremost.type == 'e'){
 				if(enemies[foremost.index]){
 					if(firstBullet.pos.x > enemies[foremost.index].pos.x){
@@ -644,7 +683,7 @@ function checkIfBulletKills(){
 
 function checkIfEnitiesCrossCanvasLimits(){
 	for(let i=0; i<enemies.length; i++){
-		if(enemies[i].pos.x < -62)
+		if(enemies[i].pos.x < -local.config.entityWidth)
 			enemies[i].entity.kill(i);
 		if(enemies[i]){ /* Have to check in case the entity gets removed in the previous statement */
 			if(enemies[i].pos.y < 0){
@@ -654,7 +693,7 @@ function checkIfEnitiesCrossCanvasLimits(){
 	}
 
 	for(let i=0; i<friends.length; i++){
-		if(friends[i].pos.x < -62 || friends[i].pos.x > canvas.width + 1)
+		if(friends[i].pos.x < -local.config.entityWidth || friends[i].pos.x > canvas.width + 1)
 			friends[i].entity.kill(i, 'l');
 		if(friends[i]){ /* Have to check in case the entity gets removed in the previous statement */
 			if(friends[i].pos.y < 0){
@@ -668,7 +707,7 @@ function checkIfEnitiesCrossCanvasLimits(){
 			bullets[i].entity.destroy(i);
 
 	for(let i=0; i<gaps.length; i++)
-		if(gaps[i].pos.x < -config.gapWidth)
+		if(gaps[i].pos.x < -local.config.gapWidth)
 			gaps[i].entity.destroy(i);
 }
 
@@ -676,7 +715,7 @@ function drawHealth(){
 	let y = 12;
 	let x = 12;
 	let a = 24;
-	for(var i=0; i<config.health; i++){
+	for(var i=0; i<local.config.health; i++){
 		ctx.drawImage(health, 0, 0, health.width, health.height, x + i * a, y, 24, 24);
 	}
 }
@@ -685,8 +724,8 @@ function reduceHealth(){
 	collisionSound.play();
 	player.blink = 1;
 	player.blink_f = 0;
-	config.health --;
-	if(config.health == 0){
+	local.config.health --;
+	if(local.config.health == 0){
 		player.fall_ = 1;
 		player.collision = 1;
 	}
@@ -696,7 +735,7 @@ function startGame(){
 	music.volume = 0.5;
 	music.play();
 	/* RESET GAME DATA */
-	config.health = 3;
+	local.config.health = 3;
 	frame = 0;
 	score = 0;
 	bg_frame = 0;
@@ -712,8 +751,8 @@ function startGame(){
 	head.fall_y = 0;
 
 	/* RESET PLAYER DATA */
-	player.x = config.playerLeftIndent;
-	player.y = config.y;
+	player.x = local.config.playerLeftIndent;
+	player.y = local.config.y;
 	player.f = 0;
 	player.fall_ = 0;
 	player.fall_f = 0;
@@ -746,8 +785,10 @@ function exitScreen(){
 }
 
 function draw(){
-	ctx.canvas.width = window.innerWidth;
-  	ctx.canvas.height = window.innerHeight;
+	ctx.canvas.width = canvas.parentElement.clientWidth;
+  	ctx.canvas.height = canvas.parentElement.clientHeight;
+
+  	//alert(canvas.parentElement);
 
 	ctx.fillStyle = "#ffffff";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -761,7 +802,7 @@ function draw(){
 		bg_frame = 0;
 
 	ctx.fillStyle = "#000000";
-	ctx.fillRect(0, canvas.height - config.y, canvas.width, config.y);
+	ctx.fillRect(0, canvas.height - local.config.y, canvas.width, local.config.y);
 
 	drawHealth();
 
@@ -800,10 +841,10 @@ function draw(){
 		switch(randomEvent){
 			case 0 :
 				friends.push({
-					entity : new friend(canvas.width, config.y),
+					entity : new friend(canvas.width, local.config.y),
 					pos : {
 						x : canvas.width,
-						y : config.y
+						y : local.config.y
 					},
 					status : 1,
 					killFrame : 0,
@@ -814,10 +855,10 @@ function draw(){
 				break;
 			case 1 :
 				enemies.push({
-					entity : new enemy(canvas.width, config.y),
+					entity : new enemy(canvas.width, local.config.y),
 					pos : {
 						x : canvas.width,
-						y : config.y
+						y : local.config.y
 					},
 					status : 1,
 					killFrame : 0,
@@ -883,4 +924,8 @@ document.addEventListener('touchmove', function(e){
 }, {
 	passive: false,
 });
+
+if(!head_.complete){
+	window.location.reload();
+}
 </script>
