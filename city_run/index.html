@@ -165,53 +165,35 @@ let speedChanged = 0;
 var score = 0;
 var bg_frame = 0;
 
-let bg = new Image();
-bg.src = local.img.background;
+function loadImage(src){
+	let image = new Image();
+	image.src = src;
+	return image;
+}
 
-let head_ = new Image();
-head_.src = local.img.head;
+function loadAudio(src){
+	let audio = new Audio();
+	audio.src = src;
+	return audio;
+}
 
-let stickman = new Image();
-stickman.src = local.img.sprite;
+let bg = loadImage(local.img.background);
+let head_ = loadImage(local.img.head);
+let stickman = loadImage(local.img.sprite);
+let stickmanFire = loadImage(local.img.spriteFire);
+let gun_ = loadImage(local.img.gun);
+let enemy_ = loadImage(local.img.enemy);
+let friend_ = loadImage(local.img.friend);
+let pow = loadImage(local.img.pow);
+let health = loadImage(local.img.health);
+let soundOn = loadImage(local.img.soundOn);
+let soundOff = loadImage(local.img.soundOff);
 
-let stickmanFire = new Image();
-stickmanFire.src = local.img.spriteFire;
-
-let gun_ = new Image();
-gun_.src = local.img.gun;
-
-let enemy_ = new Image();
-enemy_.src = local.img.enemy;
-
-let friend_ = new Image();
-friend_.src = local.img.friend;
-
-let pow = new Image();
-pow.src = local.img.pow;
-
-let health = new Image();
-health.src = local.img.health;
-
-let soundOn = new Image();
-soundOn.src = local.img.soundOn;
-
-let soundOff = new Image();
-soundOff.src = local.img.soundOff;
-
-let fallSound = new Audio();
-fallSound.src = local.audio.fall;
-
-let fireSound = new Audio();
-fireSound.src = local.audio.fire;
-
-let collisionSound = new Audio();
-collisionSound.src = local.audio.collision;
-
-let dieSound = new Audio();
-dieSound.src = local.audio.die;
-
-let music = new Audio();
-music.src = local.audio.music;
+let fallSound = loadAudio(local.audio.fall);
+let fireSound = loadAudio(local.audio.fire);
+let collisionSound = loadAudio(local.audio.collision);
+let dieSound = loadAudio(local.audio.die);
+let music = loadAudio(local.audio.music);
 
 let bullets = [];
 let enemies = [];
