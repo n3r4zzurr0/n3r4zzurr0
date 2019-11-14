@@ -3,7 +3,7 @@
 
 <style type="text/css">
 body{
-	font-family: 'Luckiest Guy', cursive;
+	font-family: 'Luckiest Guy';
 	margin: 0;
 	padding: 0;
 	background-image: url("img/bg.png");
@@ -96,7 +96,7 @@ const local = {
 		gunWidth : 20,
 		gunHeight : 20,
 		entityWidth : 56,
-		entityHeight : 62,
+		entityHeight : 56,
 		bulletWidth : 10,
 		bulletHeight : 4,
 		powWidth : 60,
@@ -199,21 +199,23 @@ function tracker(ctx, x, y){
 
 const head = {
 	animate : [0, 2, 1, 1],
-	w : (head_.width / head_.height) * local.config.headHeight,
-	h : local.config.headHeight,
 	fall_y : 0,
 	draw : function(){
+		let w = (head_.width / head_.height) * local.config.headHeight;
+		let h = local.config.headHeight;
 		if(player.blink == 1){
 			if(frame % 2 == 0){
-				ctx.drawImage(head_, 0, 0, head_.width, head_.height, player.x + local.config.bodyWidth / 2 + local.config.headMarginX, canvas.height - local.config.y - player.h - this.h - player.jump_y + local.config.headMarginY + this.animate[player.f], this.w, this.h);
+				ctx.drawImage(head_, 0, 0, head_.width, head_.height, player.x + local.config.bodyWidth / 2 + local.config.headMarginX, canvas.height - local.config.y - player.h - h - player.jump_y + local.config.headMarginY + this.animate[player.f], w, h);
 			}
 		}else{
-			ctx.drawImage(head_, 0, 0, head_.width, head_.height, player.x + local.config.bodyWidth / 2 + local.config.headMarginX, canvas.height - local.config.y - player.h - this.h - player.jump_y + local.config.headMarginY + this.animate[player.f], this.w, this.h);
+			ctx.drawImage(head_, 0, 0, head_.width, head_.height, player.x + local.config.bodyWidth / 2 + local.config.headMarginX, canvas.height - local.config.y - player.h - h - player.jump_y + local.config.headMarginY + this.animate[player.f], w, h);
 		}
 	},
 	fall : function(){
+		let w = (head_.width / head_.height) * local.config.headHeight;
+		let h = local.config.headHeight;
 		if(player.collision == 1){
-			//this.fall_x -= 5; // TO DETACH THE HEAD
+			//this.fall_x += 5; // TO DETACH THE HEAD ON COLLISION
 			if(player.fall_f < 5)
 				this.fall_y -= 5;
 			else if(player.fall_f >=5 && player.fall_f < 10)
@@ -225,7 +227,7 @@ const head = {
 		}else
 			this.fall_y += 15;
 
-		ctx.drawImage(head_, 0, 0, head_.width, head_.height, player.x + local.config.bodyWidth / 2 - local.config.headMarginX + this.fall_x, canvas.height - local.config.y - player.h - this.h - player.jump_y + local.config.headMarginY + this.animate[player.f] + this.fall_y, this.w, this.h);
+		ctx.drawImage(head_, 0, 0, head_.width, head_.height, player.x + local.config.bodyWidth / 2 - local.config.headMarginX + this.fall_x, canvas.height - local.config.y - player.h - h - player.jump_y + local.config.headMarginY + this.animate[player.f] + this.fall_y, w, h);
 	}
 }
 
@@ -452,6 +454,17 @@ class enemy{
 		}else{
 			enemies[i].pos.y -= 10;
 			enemies[i].angle += 20;
+
+			let color = hexToRgb(local.color.enemyLaser);
+			ctx.fillStyle = "rgba("+color[0]+", "+color[1]+", "+color[2]+", 0.4)";
+			ctx.fillRect(enemies[i].pos.x, 0, w, canvas.height - local.config.y - 90 * enemies[i].killFrame);
+
+			ctx.font = "24px Luckiest Guy";
+			ctx.fillStyle = "#000000";
+			ctx.fillText("+5", enemies[i].powx + local.config.powMarginX, canvas.height - enemies[i].powy + local.config.powMarginY - 6 * enemies[i].killFrame);
+
+			//ctx.drawImage(pow, 0, 0, pow.width, pow.height, , canvas.height - enemies[i].powy + local.config.powMarginY - 10 * enemies[i].killFrame, );
+
 			ctx.save();
 			ctx.translate(enemies[i].pos.x, canvas.height - enemies[i].pos.y - h);
 			ctx.rotate(enemies[i].angle * Math.PI / 180);
@@ -486,6 +499,11 @@ class friend{
 			let h = local.config.entityHeight;
 			friends[i].pos.y -= 10;
 			friends[i].angle += 20;
+
+			ctx.font = "30px Luckiest Guy";
+			ctx.fillStyle = "#000000";
+			ctx.fillText("NOPE", friends[i].powx + local.config.powMarginX, canvas.height - friends[i].powy + local.config.powMarginY - 6 * friends[i].killFrame);
+
 			ctx.save();
 			ctx.translate(friends[i].pos.x, canvas.height - friends[i].pos.y - h);
 			ctx.rotate(friends[i].angle * Math.PI / 180);
@@ -571,7 +589,7 @@ function getForemost(comparator){
 			}
 		}
 	};
-	comparator = comparator == 'b' ? (local.config.bulletStartPosition - 56) : -62;
+	comparator = comparator == 'b' ? (local.config.bulletStartPosition + local.config.bulletWidth - local.config.entityWidth) : -local.config.entityWidth;
 	for(var i=0; i<enemies.length; i++)
 		if(enemies[i].status == 1)
 			if(enemies[i].pos.x >= comparator){
@@ -924,9 +942,4 @@ document.addEventListener('touchmove', function(e){
 }, {
 	passive: false,
 });
-/*
-if(!head_.complete){
-	window.location.reload();
-}
-*/
 </script>
