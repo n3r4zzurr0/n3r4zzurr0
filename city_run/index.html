@@ -13,7 +13,7 @@ body{
 #startScreen{
 	padding: 12;
 }
-.startBtn{
+#startBtn{
 	user-select: none;
 	font-family: 'Luckiest Guy', cursive;
 	font-size: 36;
@@ -24,11 +24,11 @@ body{
 	padding: 12;
 	border-radius: 6px;
 }
-.startBtn:hover{
+#startBtn:hover{
 	background-color: #eee;
 	color: #000;
 }
-.gameTitle{
+#gameTitle{
 	user-select: none;
 	font-family: 'Luckiest Guy', cursive;
 	font-size: 60;
@@ -37,12 +37,6 @@ body{
 	user-select: none;
 	font-size: 24;
 	padding: 6;
-}
-.key{
-	color: #fff;
-	background-color: #000;
-	border-radius: 3px;
-	padding: 0 9 0 9;
 }
 #score{
 	user-select: none;
@@ -56,21 +50,26 @@ body{
 	user-select: none;
 	font-size: 45;
 }
+#sound{
+	position: fixed;
+	right: 9px;
+	bottom: 9px;
+	padding: 9px;
+	background-color: #000000;
+	border-radius: 50%;
+	cursor: pointer;
+}
 </style>
-<body>
+<body onload="init();">
 	<div id="startScreen"><center>
 		<div style="margin-top:60px;"></div>
-		<div class="gameTitle">City Run</div>
-		<br>
-		<div id="gameInstructions">
-			Jump over the green boxed guy<br>
-			Kill the red one<br><br>
-			Press <span class="key">j</span> to jump and <span class="key">f</span> to fire
-		</div>
-		<div id="finalScore"></div>
-		<br>
-		<button class="startBtn" onclick="startGame();">Play Now</button>
+		<div id="gameTitle"></div><br>
+		<div id="gameInstructions"></div>
+		<div id="finalScore"></div><br>
+		<button id="startBtn" onclick="startGame();"></button>
 	</center></div>
+
+	<div id="sound" onclick="soundControl(0);"><img height="27px"></div>
 
 	<div id="score"></div>
 
@@ -78,12 +77,30 @@ body{
 </body>
 
 <script type="text/javascript">
-const hexToRgb = hex => hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i ,(m, r, g, b) => '#' + r + r + g + g + b + b).substring(1).match(/.{2}/g).map(x => parseInt(x, 16));
+function init(){
+	document.body.style.background = "url('"+local.img.background+"');";
+	document.getElementById("gameTitle").innerHTML = local.settings.gameTitle;
+	document.getElementById("gameInstructions").innerHTML = local.settings.gameInstruction1 + "<br>" + local.settings.gameInstruction2 + "<br>" + local.settings.gameInstruction3;
+	document.getElementById("startBtn").innerHTML = local.settings.playButton;
+	document.getElementById("sound").getElementsByTagName("img")[0].src = local.img.soundOn;
+}
+
+const hexToRgb = hex => hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => '#' + r + r + g + g + b + b).substring(1).match(/.{2}/g).map(x => parseInt(x, 16));
 
 const local = {
+	settings : {
+		gameTitle : "City Run",
+		scoreTitle : "Final Score",
+		tryAgainButton : "Try Again",
+		gameInstruction1 : "Jump over the green boxed guy",
+		gameInstruction2 : "Kill the red one",
+		gameInstruction3 : "Press J to jump and F to fire",
+		playButton : "Play Now"
+	},
 	config : {
 		y : 150,
 		health : 3,
+		gameSpeed : 5,
 		headHeight : 36,
 		headMarginX : -4,
 		headMarginY : 5,
@@ -117,7 +134,9 @@ const local = {
 		sprite : "img/sprite.png",
 		spriteFire : "img/spriteFire.png",
 		background : "img/bg.png",
-		health : "img/health.png"
+		health : "img/health.png",
+		soundOn : "img/sound_on.png",
+		soundOff : "img/sound_off.png"
 	},
 	audio : {
 		die : "audio/die.wav",
@@ -134,8 +153,10 @@ const ctx = canvas.getContext("2d");
 let gameOver = 0;
 let frame = 0;
 
+let sound = 1;
 let shotFired = 0;
 let jumpTriggered = 0;
+let speedChanged = 0;
 
 var score = 0;
 var bg_frame = 0;
@@ -258,6 +279,7 @@ const player = {
 	fall_ : 0,
 	fall_f : 0,
 	collision : 0,
+	wallCollision : 0,
 	run : function(){
 		let sprite, player;
 		if(shotFired == 1){
@@ -321,9 +343,15 @@ const player = {
 				this.y -= 0;
 			else
 				this.y -= 15;
-		}else
+		}else{
+			if(gaps[0]){
+				if(this.x + this.w >= gaps[0].pos.x + local.config.gapWidth)
+					this.wallCollision = 1;
+				if(this.wallCollision == 1)
+					this.x -= 7;
+			}
 			this.y -= 15;
-
+		}
 		let sprite, player;
 		if(shotFired == 1){
 			sprite = stickmanFire;
@@ -393,7 +421,8 @@ const gun = {
 	fire : function(){
 		fireSound.volume = 0.25;
 		fireSound.currentTime = 0;
-		fireSound.play();
+		if(sound == 1)
+			fireSound.play();
 		shotFired = 1;
 		let x = local.config.bulletStartPosition;
 		let y = canvas.height - local.config.y - player.h - player.jump_y;
@@ -449,7 +478,7 @@ class enemy{
 		let w = local.config.entityWidth;
 		let h = local.config.entityHeight;
 		if(enemies[i].status == 1){
-			enemies[i].pos.x -= 5;
+			enemies[i].pos.x -= local.config.gameSpeed;
 			this.draw(enemies[i].pos.x, enemies[i].pos.y);
 		}else{
 			enemies[i].pos.y -= 10;
@@ -492,7 +521,7 @@ class friend{
 	}
 	move(i){
 		if(friends[i].status == 1){
-			friends[i].pos.x -= 5;
+			friends[i].pos.x -= local.config.gameSpeed;
 			this.draw(friends[i].pos.x, friends[i].pos.y);
 		}else{
 			let w = local.config.entityWidth;
@@ -555,7 +584,7 @@ class gap{
 		}
 	}
 	move(i){
-		gaps[i].pos.x -= 5;
+		gaps[i].pos.x -= local.config.gameSpeed;
 		this.draw(gaps[i].pos.x);
 	}
 	destroy(i){
@@ -641,7 +670,8 @@ function checkIfPlayerFalls(){
 	if(gaps.length != 0)
 		if(player.x + local.config.bodyWidth - player.fallSafeDistance[player.f] > gaps[0].pos.x && player.x + local.config.bodyWidth - 9 < gaps[0].pos.x + local.config.gapWidth)
 			if(player.jump_y == 0){
-				fallSound.play();
+				if(sound == 1)
+					fallSound.play();
 				player.fall_ = 1;
 			}
 }
@@ -675,7 +705,8 @@ function checkIfBulletKills(){
 							score += 5;
 							dieSound.playbackRate = 1;
 							dieSound.currentTime = 0;
-							dieSound.play();
+							if(sound == 1)
+								dieSound.play();
 						}
 						firstBullet.entity.destroy(firstBulletIndex);
 					}
@@ -689,7 +720,8 @@ function checkIfBulletKills(){
 							friends[foremost.index].status = 0;
 							dieSound.playbackRate = 0.2;
 							dieSound.currentTime = 0;
-							dieSound.play();
+							if(sound == 1)
+								dieSound.play();
 						}
 						firstBullet.entity.destroy(firstBulletIndex);
 					}
@@ -739,7 +771,8 @@ function drawHealth(){
 }
 
 function reduceHealth(){
-	collisionSound.play();
+	if(sound == 1)
+		collisionSound.play();
 	player.blink = 1;
 	player.blink_f = 0;
 	local.config.health --;
@@ -751,15 +784,18 @@ function reduceHealth(){
 
 function startGame(){
 	music.volume = 0.5;
-	music.play();
+	if(sound == 1)
+		music.play();
 	/* RESET GAME DATA */
 	local.config.health = 3;
+	local.config.gameSpeed = 5;
 	frame = 0;
 	score = 0;
 	bg_frame = 0;
 	gameOver = 0;
 	jumpTriggered = 0;
 	shotFired = 0;
+	speedChanged = 0;
 	bullets = [];
 	enemies = [];
 	friends = [];
@@ -779,6 +815,7 @@ function startGame(){
 	player.blink = 0;
 	player.blink_f = 0;
 	player.collision = 0;
+	player.wallCollision = 0;
 
 	/* RESET GUN DATA */
 	gun.f = 0;
@@ -789,6 +826,24 @@ function startGame(){
 	document.getElementById('startScreen').style.display = 'none';
 	document.getElementById('game').style.display = '';
 	loop();
+}
+
+function soundControl(value){
+	// Handling the background music
+	if(music){
+		if(value == 0){
+			music.pause();
+		}else{
+			if(document.getElementById('game').style.display != 'none')
+				music.play();
+		}
+	}
+	sound = value;
+	let button = document.getElementById('sound');
+	button.setAttribute('onclick', 'soundControl('+!value+');');
+	let img = button.getElementsByTagName('img')[0];
+	let img_ = value == 0 ? local.img.soundOff : local.img.soundOn;
+	img.src = img_;
 }
 
 function exitScreen(){
@@ -803,8 +858,8 @@ function exitScreen(){
 }
 
 function draw(){
-	ctx.canvas.width = canvas.parentElement.clientWidth;
-  	ctx.canvas.height = canvas.parentElement.clientHeight;
+	ctx.canvas.width = window.innerWidth;
+  	ctx.canvas.height = window.innerHeight;
 
   	//alert(canvas.parentElement);
 
@@ -834,11 +889,16 @@ function draw(){
 	}
 
 	// RUNNING SCORE +1
-	if(frame % 20 == 0)
+	if(frame % 40 == 0){
 		if(frame != 0){
 			score ++;
 			document.getElementById("score").innerHTML = score;
 		}
+		if(score > (local.config.gameSpeed - 4) * 100){
+			local.config.gameSpeed += 1;
+			speedChanged = 1;
+		}
+	}
 
 	updateEntities();
 	if(player.blink == 0)
@@ -848,51 +908,55 @@ function draw(){
 	checkIfBulletKills();
 
 	if(player.fall_ == 1){
-		head.fall();
 		player.fall();
+		head.fall();
 		gun.fall();
 	}
 
-	if(frame % 50 == 0){
-		var randomEvent = Math.floor(Math.random() * 3);
-		//var randomEvent = 2;
-		switch(randomEvent){
-			case 0 :
-				friends.push({
-					entity : new friend(canvas.width, local.config.y),
-					pos : {
-						x : canvas.width,
-						y : local.config.y
-					},
-					status : 1,
-					killFrame : 0,
-					powx : 0,
-					powy : 0,
-					angle : 0
-				});
-				break;
-			case 1 :
-				enemies.push({
-					entity : new enemy(canvas.width, local.config.y),
-					pos : {
-						x : canvas.width,
-						y : local.config.y
-					},
-					status : 1,
-					killFrame : 0,
-					powx : 0,
-					powy : 0,
-					angle : 0
-				});
-				break;
-			case 2 :
-				gaps.push({
-					entity : new gap(canvas.width),
-					pos : {
-						x : canvas.width
-					}
-				});
-				break;
+	if(frame % (56 - local.config.gameSpeed * 2 + 5) == 0){
+		if(speedChanged == 0){
+			var randomEvent = Math.floor(Math.random() * 3);
+			//var randomEvent = 2;
+			switch(randomEvent){
+				case 0 :
+					friends.push({
+						entity : new friend(canvas.width, local.config.y),
+						pos : {
+							x : canvas.width,
+							y : local.config.y
+						},
+						status : 1,
+						killFrame : 0,
+						powx : 0,
+						powy : 0,
+						angle : 0
+					});
+					break;
+				case 1 :
+					enemies.push({
+						entity : new enemy(canvas.width, local.config.y),
+						pos : {
+							x : canvas.width,
+							y : local.config.y
+						},
+						status : 1,
+						killFrame : 0,
+						powx : 0,
+						powy : 0,
+						angle : 0
+					});
+					break;
+				case 2 :
+					gaps.push({
+						entity : new gap(canvas.width),
+						pos : {
+							x : canvas.width
+						}
+					});
+					break;
+			}
+		}else{
+			speedChanged = 0;
 		}
 	}
 }
