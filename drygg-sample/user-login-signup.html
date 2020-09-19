@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+		<link rel="shortcut icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNSAzNSI+Cgk8cGF0aCBkPSJtIDIyIDUgbCAwIDggbCAtMjAgMCBsIDAgMjAgbCAzMCAwIGwgMCAtMzAgeiBtIDAgMjAgbCAtOCAwIHoiIHN0cm9rZT0iY3VycmVudENvbG9yIiBmaWxsPSJub25lIiBzdHJva2Utd2lkdGg9IjMiLz4KPC9zdmc+" />
+		<title>User Login / Signup - dry.gg</title>
+
+		<style type="text/css">
+		:root {
+			--dark-blue: #285680;
+			--primary-color: #7ED7FF;
+			--secondary-color: #98DFFF;
+		}
+		body {
+			margin: 0;
+			padding: 0;
+			background-color: #1c1c1c;
+			font-family: 'Avenir',-apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Oxygen","Ubuntu","Helvetica Neue",Arial,sans-serif;
+		}
+		.bg {
+			position: fixed;
+			z-index: -9999;
+			width: 100vw;
+			height: 100vh;
+			top: calc(50% - 250px);
+			background-image: url('https://dry.gg/media/stars.svg');
+			background-repeat: repeat-x;
+		}
+		.main {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, calc(-50% - 60px));
+		}
+		.header-graphic {
+			position: absolute;
+			z-index: -999;
+			top: calc(50% - 200px);
+			left: -150px;
+			width: 400px;
+			opacity: 1;
+			animation: rotate 60s linear infinite;
+		}
+		.header-graphic svg {
+			width: 100%;
+			fill: #f0f0f0;
+		}
+		.logo {
+			padding: 30px 0px;
+		}
+		.logo svg {
+			fill: transparent;
+			stroke: #eee;
+			height: 75px;
+		}
+		.user-action-table {
+			display: table;
+			width: 96vw;
+			max-width: 960px;
+		}
+		.user-login, .user-signup {
+			display: table-cell;
+			width: 50%;
+			padding: 12px;
+		}
+		.user-login {
+			border-right: 1px solid #444;
+		}
+		.action-table-heading {
+			font-weight: bold;
+			font-size: 30px;
+			color: #eee;
+		}
+		.action-table-heading svg {
+			height: 30px;
+			vertical-align: baseline;
+			transform: rotate(-45deg);
+		}
+		.password-input-box {
+			margin-left: -4px;
+			position: relative;
+			width: calc(100% - 24px);
+		}
+		.password-input-box input[type="text"] {
+			width: 100%;
+		}
+		.password-input-box input[type="password"] {
+			width: 100%;
+		}
+		.password-display-toggle {
+			padding: 6px;
+			cursor: pointer;
+			position: absolute;
+			right: 6px;
+			top: calc(50%);
+			z-index: 999;
+			transform: translate(0px, -50%);
+		}
+		.password-display-toggle svg {
+			width: 21px;
+			fill: #aaa;
+		}
+		.unhide-password {
+			display: block;
+		}
+		.hide-password {
+			display: none;
+		}
+		.action-table-input {
+			display: block;
+			width: calc(100% - 24px);
+			height: 36px;
+			margin-top: 12px;
+			text-indent: 12px;
+			font-size: 18px;
+			color: #333;
+			padding: 7px 0px 4px 0px;
+		}
+		.valid-input {
+			border: 2px solid #eee;
+			border-radius: 5px;
+		}
+		.valid-input:focus {
+			outline: 0;
+			box-shadow: 0 0 3px 2px var(--primary-color);
+		}
+		.invalid-input {
+			border: 2px solid #d90000;
+			border-radius: 5px 5px 0px 0px;
+		}
+		.invalid-input:focus {
+			outline: 0;
+			box-shadow: 0 0px 3px 0.5px #d90000;
+		}
+		.form-error {
+			display: none;
+			border-radius: 0px 0px 5px 5px;
+			background-color: #d90000;
+			width: calc(100% - 44px);
+			text-align: left;
+			color: #fff;
+			padding: 2px 12px 6px 12px;
+			font-size: 13px;
+		}
+		.action-table-button {
+			display: block;
+			cursor: pointer;
+			width: calc(100% - 24px);
+			height: 48px;
+			margin-top: 12px;
+			border-radius: 5px;
+			font-size: 18px;
+			font-weight: bold;
+			color: #fff;
+			border: 0px;
+			background-color: var(--dark-blue);
+		}
+		.action-table-button:hover:enabled {
+			background-color: #000;
+		}
+		.action-table-button:focus {
+			outline: 0;
+		}
+		.action-table-button svg {
+			fill: #fff;
+			height: 36px;
+			vertical-align: bottom;
+			animation: 0.5s rotate infinite linear;
+		}
+		.action-table-button:disabled {
+			cursor: not-allowed;
+		}
+		input[type="text"]:disabled, input[type="password"]:disabled {
+			cursor: not-allowed;
+			background-color: #eee;
+		}
+		.link {
+			color: #fff;
+			font-weight: bold;
+			text-decoration: none;
+		}
+		.link:hover {
+			text-decoration: underline;
+		}
+		.forgot-password {
+			cursor: pointer;
+			border: 0;
+			color: #fff;
+			padding: 10px 12px 8px 12px;
+			display: block;
+			font-size: 15px;
+			margin-top: 24px;
+			font-weight: bold;
+			border-radius: 5px;
+			white-space: nowrap;
+			width: fit-content;
+			background-color: #333;
+		}
+		.forgot-password:focus {
+			outline: 0;
+		}
+		.terms-accepted {
+			margin-top: 18px;
+			font-size: 13px;
+			color: #fff;
+		}
+		.forgot-password-dialog-container {
+			display: none;
+			position: fixed;
+			z-index: 111111;
+			top: 0px;
+			left: 0px;
+			width: 100vw;
+			height: 100vh;
+			background-color: rgba(0, 0, 0, 0.9);
+		}
+		.forgot-password-dialog {
+			display: none;
+			position: fixed;
+			z-index: 333333;
+			top: 50%;
+			left: 50%;
+			width: 360px;
+			height: auto;
+			padding: 24px;
+			font-size: 18px;
+			border-radius: 5px;
+			background-color: #fff;
+			transform: translate(-50%, -50%);
+		}
+		.forgot-password-dialog-title {
+			color: #1c1c1c;
+			font-size: 24px;
+			font-weight: bold;
+			text-align: center;
+		}
+		.forgot-password-dialog-input {
+			display: block;
+			width: calc(100% - 2px);
+			height: 42px;
+			margin-top: 12px;
+			text-indent: 12px;
+			font-size: 18px;
+			color: #333;
+			border-radius: 5px;
+			padding: 4px 0px 2px 0px;
+		}
+		.forgot-password-dialog-input-valid {
+			border: 1px solid #ccc;
+		}
+		.forgot-password-dialog-input-invalid {
+			border: 1px solid #d90000;
+		}
+		.forgot-password-dialog-input-valid:focus {
+			outline: 0;
+			box-shadow: 0 0 3px 2px var(--primary-color);
+		}
+		.forgot-password-dialog-input-invalid:focus {
+			outline: 0;
+			box-shadow: 0 0 3px 0.5px #d90000;
+		}
+		.forgot-password-dialog-button {
+			display: block;
+			cursor: pointer;
+			width: fit-content;
+			white-space: nowrap;
+			margin-top: 12px;
+			border-radius: 5px;
+			font-size: 15px;
+			font-weight: bold;
+			color: #fff;
+			border: 0px;
+			padding: 9px 12px 7px 12px;
+			background-color: var(--dark-blue);
+		}
+		.forgot-password-dialog-button:hover {
+			background-color: #1c1c1c;
+		}
+		.forgot-password-dialog-button:focus {
+			outline: 0;
+		}
+		.forgot-password-dialog-error {
+			display: none;
+			color: #d90000;
+			font-size: 13px;
+			padding: 0px 12px;
+			margin-top: 3px;
+			margin-bottom: 18px;
+		}
+		.forgot-password-dialog-email-sent {
+			display: none;
+			background-color: #90ee90;
+			border-radius: 5px;
+			color: #1c1c1c;
+			padding: 12px;
+			font-size: 18px;
+			font-weight: bold;
+			margin-top: 18px;
+		}
+		.forgot-password-dialog-email-sent svg {
+			height: 21px;
+			vertical-align: bottom;
+		}
+		.forgot-password-dialog-progress {
+			display: none;
+			width: 48px;
+			height: 48px;
+			margin-top: 15px;
+			animation: rotate 0.4s linear infinite;
+		}
+		.USER_INPUT_pass-reset-link-expired {
+			background-color: #d90000;
+			width: calc(100% - 72px);
+			text-align: left;
+			padding: 15px 18px 18px 18px;
+			color: #fff;
+			border-radius: 5px;
+			margin-bottom: 15px;
+		}
+		.USER_INPUT_pass-reset-link-expired svg {
+			fill: #fff;
+			height: 24px;
+			vertical-align: text-bottom;
+		}
+		@keyframes rotate {
+			0% {
+				transform: rotate(0deg);
+			}
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+		@media only screen and (max-width: 1185px) {
+			.header-graphic {
+				left: -240px;
+			}
+		}
+		@media only screen and (max-width: 1000px) {
+			.header-graphic {
+				left: -300px;
+			}
+		}
+		@media only screen and (max-width: 768px) {
+			.header-graphic {
+				left: -240px;
+			}
+			.user-login, .user-signup {
+				display: block;
+				border: 0px;
+			}
+		}
+		@media only screen and (max-width: 700px) {
+			.header-graphic {
+				left: -300px;
+			}
+			.user-login, .user-signup {
+				display: block;
+				width: 75%;
+			}
+		}
+		@media only screen and (max-width: 500px) {
+			.logo svg {
+				height: 45px;
+			}
+			.header-graphic {
+				left: -300px;
+			}
+			.action-table-heading {
+				font-size: 21px;
+			}
+			.user-login, .user-signup {
+				display: block;
+				width: 90%;
+			}
+			.forgot-password-dialog {
+				width: calc(100vw - 72px);
+			}
+		}
+		</style>
+	</head>
+
+	<body>
+		<div class="bg"></div>
+		<div class="header-graphic">
+			<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 58 58" style="enable-background:new 0 0 58 58;" xml:space="preserve">
+				<g>
+					<circle style="fill:#285680;" cx="29" cy="29" r="29"/>
+					<g>
+						<path style="fill:#24AE5F;" d="M29,0c-4.03,0-7.866,0.823-11.353,2.308c-0.159,0.949-0.952,2.57-0.928,3.087
+							c0.112,0.022,7.373-7.4,6.472-2.39C22.61,6.23,16.675,6.211,16.93,9.458c6.236,2.445,8.411-4.642,13.708-4.613
+							c1.767,0.01,6.292-2.784,7.155-2.215c3.496,2.303-0.799,10.467-3.474,7.75c-2.572-2.572-6.242,0.901-6.077,4.912
+							c1.337,0.06,1.908-3.796,3.11-2.51c1.324,1.417,0.846,4.27-0.986,4.925c-1.844,0.659-9.077-4.89-7.3-0.684
+							c1.954,4.668-5.854,8.275,2.028,6.393c3.716-0.891,2.481,1.937,4.234,3.286c2.088,1.603,1.164-2.214,2.686-1.633
+							c2.215,0.857-0.381,3.065,3.088,1.462c4.069-1.856,2.54,1.038,3.786,2.93c2.336,3.532,8.077,6.922,11.086,2.254
+							c0.709-1.101,0.254-9.807,4.72-3.967c2.836,3.71,1.863-4.383,2.247-6.509C53.547,8.993,42.327,0,29,0z"/>
+					</g>
+					<path style="fill:#FAC176;" d="M32.919,42.082l-5.348-4.008l-3.585,0.141l-3.719-1.17l-2.911-2.007l-6.603,1.526L8.03,37.881
+						L5,41.963l1.072,4.784c0.306,0.395,0.623,0.782,0.949,1.161l5.608,2.618l3.785,0.511l2.252,4.622l0.068,0.465
+						C21.926,57.333,25.385,58,29,58c2.494,0,4.914-0.315,7.224-0.908l0.761-4.544l3.459-2.807l1.437-4.481l-7.222-0.03L32.919,42.082z"
+						/>
+					<path style="fill:#88C057;" d="M0.375,33.647c0.138-0.012,0.156-0.024,0.168-0.036c1.297-1.296,2.377-1.513,3.458-3.458
+						c1.081-1.945-0.216-1.945,0-5.187c0.216-3.242-0.216-1.729,0-5.187c0.078-1.244-0.053-1.928-1.565-2.417C0.873,20.926,0,24.86,0,29
+						C0,30.582,0.131,32.133,0.375,33.647z"/>
+					<path style="fill:#FAC176;" d="M30,53c-1.083-0.083-5.083-1.333-6-3c-0.917-1.667-2.917-4.5-3-4
+						c-0.057,0.34-9.111-2.743-15.331-4.938L5,41.963l1.072,4.784c0.306,0.395,0.623,0.782,0.949,1.161l5.608,2.618l3.785,0.511
+						l2.252,4.622l0.068,0.465C21.926,57.333,25.385,58,29,58c2.494,0,4.914-0.315,7.224-0.908l0.577-3.445
+						C36.292,53.488,35.705,53.278,35,53C32.25,51.917,31.083,53.083,30,53z"/>
+					<path style="fill:#88C057;" d="M40.444,49.741l1.437-4.481l-7.222-0.03l-1.741-3.148l-5.348-4.008l-3.585,0.141l-3.719-1.17
+						l-2.911-2.007l-6.603,1.526L8.03,37.881l-2.361,3.18C11.889,43.257,20.943,46.34,21,46c0.083-0.5,2.083,2.333,3,4
+						c0.917,1.667,4.917,2.917,6,3c1.083,0.083,2.25-1.083,5,0c0.705,0.278,1.292,0.488,1.801,0.647l0.184-1.099L40.444,49.741z"/>
+					<path style="fill:#88C057;" d="M39.925,2.153c-0.194,3.66-0.337,6.305-0.337,6.305L34,14.046c0,0,5.238,7.508,5.588,8.381
+						c0.349,0.873,4.714,1.921,5.588,1.397c0.873-0.524,4.191-3.318,5.588-1.397c0.972,1.337,0.847,2.504,1.445,3.325
+						c0.412,0.006,0.927,0.283,1.569,0.93c0.908,0.272,1.943,0.539,2.865,0.762c0.306-1.79,0.079-4.983,0.299-6.205
+						C54.532,12.549,48.172,5.516,39.925,2.153z"/>
+					<path style="fill:#FAC176;" d="M43.33,3.806C43.148,7.26,43,10,43,10l-4,4c0,0,3.75,5.375,4,6s3.375,1.375,4,1s3-2.375,4-1
+						s0.375,2.5,2,3c1.373,0.423,3.267,0.842,3.825,0.962c0.008-1.112,0.011-2.141,0.116-2.723C54.876,13.787,49.903,7.555,43.33,3.806z
+						"/>
+				</g>
+			</svg>
+		</div>
+		<div class="main">
+			<center>
+				<div class="logo">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 49">
+						<path d="m 22 5 l 0 8 l -20 0 l 0 20 l 30 0 l 0 -30 z m 0 20 l -8 0 z m 15 -12 l 0 20 l 12 0 l 0 -10 l 12 0 l 0 -10 z m 29 0 l 0 20 l 12 0 l 0 10 l 12 -2.4 l 0 -27.6 l -12 0 l 0 12 l 0 -12 l -12 0 z m 29 20 l 0 -5 l 5 0 l 0 5 z m 10 -20 l 0 20 l 17 0 l 0 7 l -17 0 l 0 7 l 24 0 l 0 -34 z m 17 13 l -8 0 z m 12 -13 l 0 20 l 17 0 l 0 7 l -17 0 l 0 7 l 24 0 l 0 -34 z m 17 13 l -8 0 z" stroke-width="3" />
+					</svg>
+				</div>
+
+				<div class="user-action-table">
+					<div class="user-login">
+						<center>
+							<div class="action-table-heading">I've An Account</div>
+							<form>
+								<input class="action-table-input valid-input" type="text" spellcheck="false" placeholder="Email Address" autofocus />
+								<div class="form-error"></div>
+								<div class="password-input-box">
+									<input class="action-table-input valid-input" type="password" spellcheck="false" placeholder="Password" />
+									<div class="password-display-toggle">
+										<svg class="unhide-password" viewBox="0 0 24 24"><path d="M11.83,9L15,12.16C15,12.11 15,12.05 15,12A3,3 0 0,0 12,9C11.94,9 11.89,9 11.83,9M7.53,9.8L9.08,11.35C9.03,11.56 9,11.77 9,12A3,3 0 0,0 12,15C12.22,15 12.44,14.97 12.65,14.92L14.2,16.47C13.53,16.8 12.79,17 12,17A5,5 0 0,1 7,12C7,11.21 7.2,10.47 7.53,9.8M2,4.27L4.28,6.55L4.73,7C3.08,8.3 1.78,10 1,12C2.73,16.39 7,19.5 12,19.5C13.55,19.5 15.03,19.2 16.38,18.66L16.81,19.08L19.73,22L21,20.73L3.27,3M12,7A5,5 0 0,1 17,12C17,12.64 16.87,13.26 16.64,13.82L19.57,16.75C21.07,15.5 22.27,13.86 23,12C21.27,7.61 17,4.5 12,4.5C10.6,4.5 9.26,4.75 8,5.2L10.17,7.35C10.74,7.13 11.35,7 12,7Z" /></svg>
+										<svg class="hide-password" viewBox="0 0 24 24"><path d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z" /></svg>
+									</div>
+								</div>
+								<div class="form-error"></div>
+							</form>
+							<button class="action-table-button">Login</button>
+							<button class="forgot-password link">Forgot Password</button>
+						</center>
+					</div>
+					<div class="user-signup">
+						<center>
+							<div class="action-table-heading">I'm New Here
+								<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+									<path style="fill:#FFD960;" d="M390.884,224.832c-1.089-3.355-3.99-5.801-7.482-6.309l-82.291-11.958l-36.804-74.567
+										c-1.559-3.166-4.782-5.169-8.308-5.169c-3.528,0-6.752,2.003-8.312,5.169l-36.803,74.567l-82.291,11.958
+										c-3.488,0.507-6.392,2.952-7.483,6.309c-1.089,3.352-0.179,7.036,2.347,9.501l59.548,58.041l-14.058,81.959
+										c-0.598,3.476,0.831,6.99,3.685,9.065c2.853,2.074,6.64,2.348,9.761,0.705L256,345.407l73.6,38.695
+										c1.357,0.712,2.839,1.064,4.314,1.064c1.921,0,3.836-0.596,5.45-1.769c2.852-2.074,4.281-5.589,3.687-9.065l-5.277-30.767
+										l-4.339-25.296l-4.442-25.895l59.546-58.041C391.066,231.868,391.975,228.184,390.884,224.832z"/>
+									<g style="opacity:0.1;">
+										<path style="fill:#231F20;" d="M190.06,377.29c-2.853-2.074-4.284-5.589-3.685-9.065l14.058-81.959l-59.548-58.041
+											c-2.526-2.465-3.434-6.148-2.347-9.501c0.204-0.626,0.488-1.207,0.811-1.763l-10.753,1.563c-3.488,0.507-6.392,2.952-7.483,6.309
+											c-1.089,3.352-0.179,7.036,2.347,9.501l59.548,58.041l-14.058,81.959c-0.598,3.476,0.831,6.99,3.685,9.065
+											c2.853,2.074,6.64,2.348,9.761,0.705l10.402-5.468C191.833,378.339,190.903,377.903,190.06,377.29z"/>
+									</g>
+									<g>
+										<path style="fill:#FFD960;" d="M46.482,264.084H8.084C3.62,264.084,0,260.465,0,256c0-4.465,3.62-8.084,8.084-8.084h38.398
+											c4.465,0,8.084,3.62,8.084,8.084C54.566,260.465,50.947,264.084,46.482,264.084z"/>
+										<path style="fill:#FFD960;" d="M503.916,264.084h-38.398c-4.465,0-8.084-3.62-8.084-8.084c0-4.465,3.62-8.084,8.084-8.084h38.398
+											c4.465,0,8.084,3.62,8.084,8.084C512,260.465,508.38,264.084,503.916,264.084z"/>
+										<path style="fill:#FFD960;" d="M80.698,439.387c-2.07,0-4.138-0.789-5.717-2.368c-3.157-3.157-3.157-8.276,0.001-11.432
+											l27.151-27.15c3.157-3.157,8.276-3.157,11.432,0c3.157,3.157,3.157,8.276-0.001,11.432L86.413,437.02
+											C84.836,438.598,82.766,439.387,80.698,439.387z"/>
+										<path style="fill:#FFD960;" d="M404.149,115.932c-2.07,0-4.138-0.789-5.717-2.368c-3.157-3.157-3.157-8.276,0-11.433l27.152-27.15
+											c3.158-3.158,8.277-3.157,11.433,0c3.157,3.157,3.157,8.276,0,11.432l-27.151,27.15
+											C408.287,115.143,406.218,115.932,404.149,115.932z"/>
+										<path style="fill:#FFD960;" d="M256,511.999c-4.465,0-8.084-3.62-8.084-8.084v-38.397c0-4.465,3.62-8.084,8.084-8.084
+											c4.465,0,8.084,3.62,8.084,8.084v38.397C264.084,508.379,260.465,511.999,256,511.999z"/>
+										<path style="fill:#FFD960;" d="M256,54.567c-4.465,0-8.084-3.62-8.084-8.084V8.085c0-4.465,3.62-8.084,8.084-8.084
+											c4.465,0,8.084,3.62,8.084,8.084v38.398C264.084,50.948,260.465,54.567,256,54.567z"/>
+										<path style="fill:#FFD960;" d="M431.301,439.387c-2.068,0-4.138-0.789-5.717-2.368l-27.152-27.151
+											c-3.157-3.157-3.157-8.276,0-11.432c3.158-3.157,8.276-3.157,11.433,0l27.151,27.15c3.157,3.157,3.157,8.276,0,11.432
+											C435.439,438.598,433.37,439.387,431.301,439.387z"/>
+										<path style="fill:#FFD960;" d="M107.85,115.934c-2.07,0-4.138-0.789-5.717-2.368L74.982,86.415
+											c-3.157-3.157-3.157-8.276,0.001-11.432c3.157-3.157,8.275-3.157,11.432,0l27.151,27.152c3.157,3.157,3.157,8.276-0.001,11.433
+											C111.988,115.145,109.918,115.934,107.85,115.934z"/>
+									</g>
+								</svg>
+							</div>
+							<form>
+								<input class="action-table-input valid-input" type="text" spellcheck="false" placeholder="Email Address" />
+								<div class="form-error"></div>
+								<div class="password-input-box">
+									<input class="action-table-input valid-input" type="password" spellcheck="false" placeholder="Password" />
+									<div class="password-display-toggle">
+										<svg class="unhide-password" viewBox="0 0 24 24"><path d="M11.83,9L15,12.16C15,12.11 15,12.05 15,12A3,3 0 0,0 12,9C11.94,9 11.89,9 11.83,9M7.53,9.8L9.08,11.35C9.03,11.56 9,11.77 9,12A3,3 0 0,0 12,15C12.22,15 12.44,14.97 12.65,14.92L14.2,16.47C13.53,16.8 12.79,17 12,17A5,5 0 0,1 7,12C7,11.21 7.2,10.47 7.53,9.8M2,4.27L4.28,6.55L4.73,7C3.08,8.3 1.78,10 1,12C2.73,16.39 7,19.5 12,19.5C13.55,19.5 15.03,19.2 16.38,18.66L16.81,19.08L19.73,22L21,20.73L3.27,3M12,7A5,5 0 0,1 17,12C17,12.64 16.87,13.26 16.64,13.82L19.57,16.75C21.07,15.5 22.27,13.86 23,12C21.27,7.61 17,4.5 12,4.5C10.6,4.5 9.26,4.75 8,5.2L10.17,7.35C10.74,7.13 11.35,7 12,7Z" /></svg>
+										<svg class="hide-password" viewBox="0 0 24 24"><path d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z" /></svg>
+									</div>
+								</div>
+								<div class="form-error"></div>
+								<div class="password-input-box">
+									<input class="action-table-input valid-input" type="password" spellcheck="false" placeholder="Repeat Password" />
+									<div class="password-display-toggle">
+										<svg class="unhide-password" viewBox="0 0 24 24"><path d="M11.83,9L15,12.16C15,12.11 15,12.05 15,12A3,3 0 0,0 12,9C11.94,9 11.89,9 11.83,9M7.53,9.8L9.08,11.35C9.03,11.56 9,11.77 9,12A3,3 0 0,0 12,15C12.22,15 12.44,14.97 12.65,14.92L14.2,16.47C13.53,16.8 12.79,17 12,17A5,5 0 0,1 7,12C7,11.21 7.2,10.47 7.53,9.8M2,4.27L4.28,6.55L4.73,7C3.08,8.3 1.78,10 1,12C2.73,16.39 7,19.5 12,19.5C13.55,19.5 15.03,19.2 16.38,18.66L16.81,19.08L19.73,22L21,20.73L3.27,3M12,7A5,5 0 0,1 17,12C17,12.64 16.87,13.26 16.64,13.82L19.57,16.75C21.07,15.5 22.27,13.86 23,12C21.27,7.61 17,4.5 12,4.5C10.6,4.5 9.26,4.75 8,5.2L10.17,7.35C10.74,7.13 11.35,7 12,7Z" /></svg>
+										<svg class="hide-password" viewBox="0 0 24 24"><path d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z" /></svg>
+									</div>
+								</div>
+								<div class="form-error"></div>
+							</form>
+							<button class="action-table-button">Signup</button>
+							<div class="terms-accepted">By clicking Signup, you agree to our <a class="link" href="#">terms</a> and <a class="link" href="#">privacy policy</a>.</div>
+						</center>
+					</div>
+				</div>
+			</div>
+
+			<div class="forgot-password-dialog-container">
+				<div class="forgot-password-dialog">
+					<div class="forgot-password-dialog-title">Reset Password</div>
+					<div class="forgot-password-dialog-form">
+						<input class="forgot-password-dialog-input forgot-password-dialog-input-valid" text="input" spellcheck="false" autocomplete="no" placeholder="Email address" />
+						<div class="forgot-password-dialog-error"></div>
+						<center><button class="forgot-password-dialog-button">Send Password Reset Link</button></center>
+					</div>
+					<center>
+						<div class="forgot-password-dialog-progress">
+							<svg viewBox="0 0 24 24"><path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" /></svg>
+						</div>
+					</center>
+					<div class="forgot-password-dialog-email-sent">
+						<svg viewbox="0 0 24 24"><path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z" /></svg>&nbsp;Email sent!
+					</div>
+				</div>
+			</div>
+
+		</center>
+
+		<script type="text/javascript">
+		const App = {
+			errorBox: {},
+			errorIn: {
+				loginEmail: false,
+				loginPassword: false,
+				signupEmail: false,
+				signupPassword: false,
+				signupVerifyPassword: false
+			},
+			firstError: {
+				loginEmail: false,
+				loginPassword: false,
+				signupEmail: false,
+				signupPassword: false,
+				signupVerifyPassword: false
+			},
+			passwordVisibility: [false, false, false],
+			isFieldEmpty: {
+				loginEmail: false,
+				loginPassword: false,
+				signupEmail: false,
+				signupPassword: false,
+				signupVerifyPassword: false
+			},
+			existingEmail: [],
+			init: function() {
+				let Input = document.getElementsByClassName('action-table-input');
+				let Button = document.getElementsByClassName('action-table-button');
+				let FormError = document.getElementsByClassName('form-error');
+
+				// Screen Adjustment
+				this.mainScreen = document.getElementsByClassName('main')[0];
+				this.headerGraphic = document.getElementsByClassName('header-graphic')[0];
+
+				// Login Form
+				this.loginEmail = Input[0];
+				this.loginPassword = Input[1];
+				this.loginSubmit = Button[0];
+
+				// Signup Form
+				this.signupEmail = Input[2];
+				this.signupPassword = Input[3];
+				this.signupVerifyPassword = Input[4];
+				this.signupSubmit = Button[1];
+
+				this.passwordDisplayToggle = document.getElementsByClassName('password-display-toggle');
+
+				// Error Fields
+				this.errorBox.loginEmail = FormError[0];
+				this.errorBox.loginPassword = FormError[1];
+				this.errorBox.signupEmail = FormError[2];
+				this.errorBox.signupPassword = FormError[3];
+				this.errorBox.signupVerifyPassword = FormError[4];
+
+				this.forgotPasswordDialogContainer = document.getElementsByClassName('forgot-password-dialog-container')[0];
+				this.forgotPasswordDialogError = document.getElementsByClassName('forgot-password-dialog-error')[0];
+				this.forgotPasswordDialog = document.getElementsByClassName('forgot-password-dialog')[0];
+				this.forgotPasswordButton = document.getElementsByClassName('forgot-password-dialog-button')[0];
+				this.forgotPasswordEmail = document.getElementsByClassName('forgot-password-dialog-input')[0];
+				this.forgotPassword = document.getElementsByClassName('forgot-password')[0];
+				this.forgotPasswordForm = document.getElementsByClassName('forgot-password-dialog-form')[0];
+				this.forgotPasswordProgress = document.getElementsByClassName('forgot-password-dialog-progress')[0];
+				this.forgotPasswordSuccess = document.getElementsByClassName('forgot-password-dialog-email-sent')[0];
+
+				this.somethingIsNotRight = document.getElementsByClassName('something-is-not-right')[0];
+			},
+			resetScreenFocus: function() {
+				//console.log(window.innerWidth, window.innerHeight);
+				if((window.innerWidth <= 768 && window.innerHeight < 780) || window.innerHeight < 591) {
+					// Unlock from the center
+					this.mainScreen.style.position = 'relative';
+					this.mainScreen.style.left = '0px';
+					this.mainScreen.style.transform = 'translate(0, 0)';
+				} else {
+					// Lock to the centre
+					this.mainScreen.style.position = 'absolute';
+					this.mainScreen.style.left = '50%';
+					this.mainScreen.style.transform = 'translate(-50%, calc(-50% - 60px))';
+				}
+			},
+			sendRequest: function(opCode, data) {
+				console.log('This is page has been reproduced just for showcasing.');
+			},
+			enableForms: function() {
+				this.loginSubmit.innerHTML = 'Login';
+				this.signupSubmit.innerHTML = 'Signup';
+								
+				let Input = document.getElementsByClassName('action-table-input');
+				let Button = document.getElementsByClassName('action-table-button');
+
+				for(let i = 0; i < Input.length; i ++) {
+					Input[i].removeAttribute('disabled');
+				}
+				for(let i = 0; i < Button.length; i ++) {
+					Button[i].removeAttribute('disabled');
+				}
+			},
+			handleError: function(node, errorNode, messageCode, isValid) {
+				const message = [
+					'Cannot be empty!',
+					'Invalid email address',
+					'Password length should be greater than or equal to 8',
+					'Passwords do not match',
+					'Email address already in use',
+					'Email address not found',
+					'Incorrect Password'
+				];
+				if(!isValid) {
+					node.className = 'action-table-input invalid-input';
+					errorNode.innerHTML = message[messageCode];
+					errorNode.style.display = 'block';
+				} else {
+					node.className = 'action-table-input valid-input';
+					errorNode.innerHTML = '';
+					errorNode.style.display = 'none';
+				}
+			},
+			validateEmail: function(node) {
+				let regex = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>[\]\.,;:\s\"~`!@#$%^&*()+=\\\/]{2,})/;
+				let isValid = false;
+				if(regex.test(node.value)) {
+					let match = node.value.match(regex);
+					if(match[0].length === node.value.length) {
+						isValid = true;
+					}
+				}
+				return isValid;
+			},
+			defineError: function(node, element, errCode, isValid) {
+				if(!isValid) {
+					this.errorIn[node] = true;
+					this.firstError[node] = true;
+				} else {
+					this.errorIn[node] = false;
+				}
+				this.handleError(element, this.errorBox[node], errCode, isValid);
+			},
+			limitPasswordLength: function(element) {
+				if(element.value.length >= 128) {
+					element.value = element.value.substr(0, 128);
+				}
+			},
+			checkIfEmailExists: function(node, element, errCode) {
+				if(!this.errorIn[node]) {
+						
+					let emailExists = false;
+
+					for(let i = 0; i < this.existingEmail.length; i ++) {
+						if(element.value == this.existingEmail[i]) {
+							emailExists = true;
+							this.errorIn[node] = true;
+							this.handleError(element, this.errorBox[node], errCode, false);
+							break;
+						}
+					}
+
+					if(!emailExists) {
+						this.errorIn[node] = false;
+						this.handleError(element, this.errorBox[node], 4, true);
+					}
+				}
+			},
+			handleChange: function(change) {
+
+				let isValid = false;
+
+				switch(change) {
+					
+					// Login Form
+
+					case 'login-email':
+						isValid = this.validateEmail(this.loginEmail);
+						this.defineError('loginEmail', this.loginEmail, 1, isValid);
+						break;
+
+					case 'login-password':
+						//
+						break;
+
+					// Signup Form
+
+					case 'signup-email':
+						isValid = this.validateEmail(this.signupEmail);
+						this.defineError('signupEmail', this.signupEmail, 1, isValid);
+						this.checkIfEmailExists('signupEmail', this.signupEmail, 4);
+						break;
+
+					case 'signup-password':
+						this.limitPasswordLength(this.signupPassword);
+						if(this.signupPassword.value.length >= 8) {
+							isValid = true;
+						}
+						this.defineError('signupPassword', this.signupPassword, 2, isValid);
+						break;
+
+					case 'signup-verify-password':
+						this.limitPasswordLength(this.signupVerifyPassword);
+						if(this.signupPassword.value === this.signupVerifyPassword.value) {
+							isValid = true;
+						}
+						this.defineError('signupVerifyPassword', this.signupVerifyPassword, 3, isValid);
+						break;
+
+					default:
+						break;
+				}
+			},
+			handleInput: function(input) {
+
+				let isValid = false;
+
+				switch(input) {
+					
+					// Login Form
+
+					case 'login-email':
+						if(this.isFieldEmpty.loginEmail) {
+							if(this.loginEmail.value.length > 0) {
+								isValid = true;
+								this.isFieldEmpty.loginEmail = false;
+							} else {
+								isValid = false;
+								this.isFieldEmpty.loginEmail = true;
+							}
+							this.handleError(this.loginEmail, this.errorBox.loginEmail, 0, isValid);
+						}
+						if(this.firstError.loginEmail) {
+							isValid = this.validateEmail(this.loginEmail);
+							if(!isValid) {
+								this.errorIn.loginEmail = true;
+							} else {
+								this.errorIn.loginEmail = false;
+							}
+							this.handleError(this.loginEmail, this.errorBox.loginEmail, 1, isValid);
+						}
+						break;
+
+					case 'login-password':
+						if(this.isFieldEmpty.loginPassword) {
+							if(this.loginPassword.value.length > 0) {
+								isValid = true;
+								this.isFieldEmpty.loginPassword = false;
+							} else {
+								isValid = false;
+								this.isFieldEmpty.loginPassword = true;
+							}
+							this.handleError(this.loginPassword, this.errorBox.loginPassword, 0, isValid);
+						}
+						if(this.errorIn.loginPassword) {
+							isValid = true;
+							this.errorIn.loginPassword = false;
+							this.handleError(this.loginPassword, this.errorBox.loginPassword, 6, isValid);
+						}
+						break;
+
+					// Signup Form
+
+					case 'signup-email':
+						if(this.isFieldEmpty.signupEmail) {
+							if(this.signupEmail.value.length > 0) {
+								isValid = true;
+								this.isFieldEmpty.signupEmail = false;
+							} else {
+								isValid = false;
+								this.isFieldEmpty.signupEmail = true;
+							}
+							this.handleError(this.signupEmail, this.errorBox.signupEmail, 0, isValid);
+						}
+						if(this.firstError.signupEmail) {
+							isValid = this.validateEmail(this.signupEmail);
+							if(!isValid) {
+								this.errorIn.signupEmail = true;
+							} else {
+								this.errorIn.signupEmail = false;
+							}
+							this.handleError(this.signupEmail, this.errorBox.signupEmail, 1, isValid);
+						}
+						if(!this.errorIn.signupEmail) {
+						
+							let emailExists = false;
+
+							for(let i = 0; i < this.existingEmail.length; i ++) {
+								if(this.signupEmail.value == this.existingEmail[i]) {
+									emailExists = true;
+									this.errorIn.signupEmail = true;
+									this.handleError(this.signupEmail, this.errorBox.signupEmail, 4, false);
+									break;
+								}
+							}
+
+							if(!emailExists) {
+								this.errorIn.signupEmail = false;
+								this.handleError(this.signupEmail, this.errorBox.signupEmail, 4, true);
+							}
+						}
+						break;
+
+					case 'signup-password':
+						if(this.isFieldEmpty.signupPassword) {
+							if(this.signupPassword.value.length > 0) {
+								isValid = true;
+								this.isFieldEmpty.signupPassword = false;
+							} else {
+								isValid = false;
+								this.isFieldEmpty.signupPassword = true;
+							}
+							this.handleError(this.signupPassword, this.errorBox.signupPassword, 0, isValid);
+						}
+						if(this.firstError.signupPassword) {
+							if(this.signupPassword.value.length >= 8) {
+								isValid = true;
+								this.errorIn.signupPassword = false;
+							} else {
+								this.errorIn.signupPassword = true;
+							}
+							this.handleError(this.signupPassword, this.errorBox.signupPassword, 2, isValid);
+						}
+						if(this.signupVerifyPassword.value.length != 0) {
+							if(this.signupVerifyPassword.value != this.signupPassword.value) {
+								isValid = false;
+								this.errorIn.signupVerifyPassword = true;
+								this.firstError.signupVerifyPassword = true;
+							} else {
+								isValid = true;
+								this.errorIn.signupVerifyPassword = false;
+							}
+							this.handleError(this.signupVerifyPassword, this.errorBox.signupVerifyPassword, 3, isValid);
+						}
+						break;
+
+					case 'signup-verify-password':
+						if(this.isFieldEmpty.signupVerifyPassword) {
+							if(this.signupVerifyPassword.value.length > 0) {
+								isValid = true;
+								this.isFieldEmpty.signupVerifyPassword = false;
+							} else {
+								isValid = false;
+								this.isFieldEmpty.signupVerifyPassword = true;
+							}
+							this.handleError(this.signupVerifyPassword, this.errorBox.signupVerifyPassword, 0, isValid);
+						}
+						if(this.firstError.signupVerifyPassword) {
+							if(this.signupPassword.value === this.signupVerifyPassword.value) {
+								isValid = true;
+								this.errorIn.signupVerifyPassword = false;
+							} else {
+								this.errorIn.signupVerifyPassword = true;
+							}
+							this.handleError(this.signupVerifyPassword, this.errorBox.signupVerifyPassword, 3, isValid);
+						}
+						break;
+
+					default:
+						break;
+				}
+			},
+			handleClick: function(click) {
+
+				let isValid = true;
+
+				switch(click) {
+					
+					case 'login':
+						if(this.loginEmail.value === '') {
+							isValid = false;
+							this.isFieldEmpty.loginEmail = true;
+							this.handleError(this.loginEmail, this.errorBox.loginEmail, 0, isValid);
+						}
+						if(this.loginPassword.value === '') {
+							isValid = false;
+							this.isFieldEmpty.loginPassword = true;
+							this.handleError(this.loginPassword, this.errorBox.loginPassword, 0, isValid);
+						}
+
+						if(isValid) {
+							if(!this.errorIn.loginEmail && !this.errorIn.loginPassword) {
+								this.loginSubmit.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" /></svg>';
+								
+								let Input = document.getElementsByClassName('action-table-input');
+								let Button = document.getElementsByClassName('action-table-button');
+
+								for(let i = 0; i < Input.length; i ++) {
+									Input[i].setAttribute('disabled', '');
+								}
+								for(let i = 0; i < Button.length; i ++) {
+									Button[i].setAttribute('disabled', '');
+								}
+
+								let data = 'email=' + this.loginEmail.value + '&password=' + this.loginPassword.value + '&unique=produced-as-a-sample';
+								this.sendRequest(1, data);
+							}
+						}
+						break;
+
+					case 'signup':
+						// Recheck Signup Email
+						isValid = this.validateEmail(this.signupEmail);
+						this.defineError('signupEmail', this.signupEmail, 1, isValid);
+						this.checkIfEmailExists('signupEmail', this.signupEmail, 4);
+
+						// Recheck Signup Password
+						this.limitPasswordLength(this.signupPassword);
+						if(this.signupPassword.value.length < 8) {
+							isValid = false;
+						}
+						this.defineError('signupPassword', this.signupPassword, 2, isValid);
+
+						// Recheck Signup Repeated Password
+						this.limitPasswordLength(this.signupVerifyPassword);
+						if(this.signupPassword.value != this.signupVerifyPassword.value) {
+							isValid = false;
+						}
+						this.defineError('signupVerifyPassword', this.signupVerifyPassword, 3, isValid);
+
+						if(this.signupEmail.value === '') {
+							isValid = false;
+							this.isFieldEmpty.signupEmail = true;
+							this.handleError(this.signupEmail, this.errorBox.signupEmail, 0, isValid);
+						}
+						if(this.signupPassword.value === '') {
+							isValid = false;
+							this.isFieldEmpty.signupPassword = true;
+							this.handleError(this.signupPassword, this.errorBox.signupPassword, 0, isValid);
+						}
+						if(this.signupVerifyPassword.value === '') {
+							isValid = false;
+							this.isFieldEmpty.signupVerifyPassword = true;
+							this.handleError(this.signupVerifyPassword, this.errorBox.signupVerifyPassword, 0, isValid);
+						}
+
+						if(isValid) {
+							if(!this.errorIn.signupEmail && !this.errorIn.signupPassword && !this.errorIn.signupVerifyPassword) {
+								this.signupSubmit.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" /></svg>';
+								
+								let Input = document.getElementsByClassName('action-table-input');
+								let Button = document.getElementsByClassName('action-table-button');
+
+								for(let i = 0; i < Input.length; i ++) {
+									Input[i].setAttribute('disabled', '');
+								}
+								for(let i = 0; i < Button.length; i ++) {
+									Button[i].setAttribute('disabled', '');
+								}
+
+								let data = 'email=' + this.signupEmail.value + '&password=' + this.signupPassword.value + '&unique=produced-as-a-sample';
+								this.sendRequest(0, data);
+							}
+						}
+					
+						break;
+
+					default:
+						break;
+				}
+			},
+			togglePasswordVisibility: function(n) {
+				this.passwordVisibility[n] = !this.passwordVisibility[n];
+				if(this.passwordVisibility[n]) {
+					this.passwordDisplayToggle[n].getElementsByClassName('unhide-password')[0].style.display = 'none';
+					this.passwordDisplayToggle[n].getElementsByClassName('hide-password')[0].style.display = 'block';
+					this.passwordDisplayToggle[n].parentElement.getElementsByClassName('action-table-input')[0].setAttribute('type', 'text');
+				} else {
+					this.passwordDisplayToggle[n].getElementsByClassName('unhide-password')[0].style.display = 'block';
+					this.passwordDisplayToggle[n].getElementsByClassName('hide-password')[0].style.display = 'none';
+					this.passwordDisplayToggle[n].parentElement.getElementsByClassName('action-table-input')[0].setAttribute('type', 'password');
+				}
+			},
+			popForgotPasswordDialog: function() {
+				this.forgotPasswordDialogContainer.style.display = 'block';
+				this.forgotPasswordDialog.style.display = 'block';
+				this.forgotPasswordEmail.focus();
+			},
+			sendPasswordResetLink: function() {
+
+				let isEmailValid = false;
+
+				if(this.forgotPasswordEmail.value != '') {
+
+					isEmailValid = this.validateEmail(this.forgotPasswordEmail);
+
+					if(isEmailValid) {
+						this.forgotPasswordEmailError(-1);
+					} else {
+						this.forgotPasswordEmailError(2);
+					}
+				} else {
+					this.forgotPasswordEmailError(1);
+				}
+
+				if(isEmailValid) {
+					this.forgotPasswordForm.style.display = 'none';
+					this.forgotPasswordProgress.style.display = 'block';
+
+					let data = 'email=' + this.forgotPasswordEmail.value + '&unique=produced-as-a-sample';
+					this.sendRequest(2, data);
+				}
+			},
+			forgotPasswordEmailError: function(code) {
+
+				if(code === -1) {
+
+					this.forgotPasswordEmail.className = 'forgot-password-dialog-input forgot-password-dialog-input-valid';
+					this.forgotPasswordDialogError.style.display = 'none';
+
+				} else {
+
+					const errorMessages = ['Cannot be empty!', 'Invalid email address', 'Email address does not exist'];
+
+					this.forgotPasswordEmail.className = 'forgot-password-dialog-input forgot-password-dialog-input-invalid';
+					this.forgotPasswordDialogError.style.display = 'block';
+					this.forgotPasswordDialogError.innerHTML = errorMessages[code - 1];
+				}
+			},
+			listen: function() {
+				// Login Form
+				this.loginEmail.addEventListener('input', () => { this.handleInput('login-email'); });
+				this.loginEmail.addEventListener('change', () => { this.handleChange('login-email'); });
+				this.loginPassword.addEventListener('input', () => { this.handleInput('login-password'); });
+				this.loginPassword.addEventListener('change', () => { this.handleChange('login-password'); });
+				this.loginSubmit.addEventListener('click', () => { this.handleClick('login'); });
+
+				// Signup Form
+				this.signupEmail.addEventListener('input', () => { this.handleInput('signup-email'); });
+				this.signupEmail.addEventListener('change', () => { this.handleChange('signup-email'); });
+				this.signupPassword.addEventListener('input', () => { this.handleInput('signup-password'); });
+				this.signupPassword.addEventListener('change', () => { this.handleChange('signup-password'); });
+				this.signupVerifyPassword.addEventListener('input', () => { this.handleInput('signup-verify-password'); });
+				this.signupVerifyPassword.addEventListener('change', () => { this.handleChange('signup-verify-password'); });
+				this.signupSubmit.addEventListener('click', () => { this.handleClick('signup'); });
+
+				// Error Focus / Blur
+				// 0 0.5px 3px 0.5px #d90000;
+				let boxShadow = '0 0.5px 3px 0.5px #d90000';
+				this.loginEmail.addEventListener('focus', () => { this.errorBox.loginEmail.style.boxShadow = boxShadow; });
+				this.loginPassword.addEventListener('focus', () => { this.errorBox.loginPassword.style.boxShadow = boxShadow; });
+				this.signupEmail.addEventListener('focus', () => { this.errorBox.signupEmail.style.boxShadow = boxShadow; });
+				this.signupPassword.addEventListener('focus', () => { this.errorBox.signupPassword.style.boxShadow = boxShadow; });
+				this.signupVerifyPassword.addEventListener('focus', () => { this.errorBox.signupVerifyPassword.style.boxShadow = boxShadow; });
+				this.loginEmail.addEventListener('blur', () => { this.errorBox.loginEmail.style.boxShadow = ''; });
+				this.loginPassword.addEventListener('blur', () => { this.errorBox.loginPassword.style.boxShadow = ''; });
+				this.signupEmail.addEventListener('blur', () => { this.errorBox.signupEmail.style.boxShadow = ''; });
+				this.signupPassword.addEventListener('blur', () => { this.errorBox.signupPassword.style.boxShadow = ''; });
+				this.signupVerifyPassword.addEventListener('blur', () => { this.errorBox.signupVerifyPassword.style.boxShadow = ''; });
+				
+				// Enter key press
+				this.loginEmail.addEventListener('keypress', (e) => { if(e.which == 13) { this.handleClick('login'); }});
+				this.loginPassword.addEventListener('keypress', (e) => { if(e.which == 13) { this.handleClick('login'); }});
+				this.signupEmail.addEventListener('keypress', (e) => { if(e.which == 13) { this.handleClick('signup'); }});
+				this.signupPassword.addEventListener('keypress', (e) => { if(e.which == 13) { this.handleClick('signup'); }});
+				this.signupVerifyPassword.addEventListener('keypress', (e) => { if(e.which == 13) { this.handleClick('signup'); }});
+
+				this.forgotPassword.addEventListener('click', () => { this.popForgotPasswordDialog(); });
+				this.forgotPasswordEmail.addEventListener('input', () => { this.forgotPasswordEmailError(-1); });
+				this.forgotPasswordButton.addEventListener('click', () => { this.sendPasswordResetLink(); });
+				this.forgotPasswordEmail.addEventListener('keypress', (e) => { if(e.which === 13) { this.sendPasswordResetLink(); } });
+
+				for(let i = 0; i < this.passwordDisplayToggle.length; i ++) {
+					this.passwordDisplayToggle[i].addEventListener('click', () => { this.togglePasswordVisibility(i); });
+				}
+				
+				window.onresize = () => {
+					this.resetScreenFocus();
+				};
+
+				window.onload = () => {
+					this.resetScreenFocus();
+				};
+			}
+		};
+		App.init();
+		App.listen();
+		</script>
+	</body>
+</html>
